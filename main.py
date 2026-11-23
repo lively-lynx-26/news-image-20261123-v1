@@ -1,16 +1,16 @@
 """Entry program for news-image-20261123.
 
 The front page for Monday 23 November 2026 was rendered in the build
-session (code-drawn text, scenes and map, PIL/DejaVu) and is stored
-beside this file as entry.png. This program only copies that image to
-the grader's output directory, then checks the copy is a well-formed
-PNG of the expected size and hash. The copy is byte-exact: no pixels
-are re-rendered here, so the shipped image is identical to the one
-reviewed in the build session.
+session and is stored beside this file as entry.png. This program only
+copies that image to the grader's output directory and checks the copy
+is a well-formed PNG of the expected size and hash. It performs a
+byte-exact copy; no re-rendering happens here.
 
 Usage: python3 main.py
-Output: $MAKEFUN_OUTPUT_DIR/entry.png (falls back to <repo>/output
-when the variable is unset, empty or unwritable).
+Output: entry.png (1024x1024, 211,610 bytes) written to
+$MAKEFUN_OUTPUT_DIR, or to <repo>/output when that variable is unset
+or not writable. The program exits 0 only after the copy passes its
+PNG-magic, size and sha256 checks.
 """
 
 import hashlib
@@ -21,22 +21,29 @@ import sys
 IMAGE_NAME = "entry.png"
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 EXPECTED_SHA256 = "b5bf967033272e4c60ac33e421a238a09a6547fad62ab18d34676e921d189d8c"
+EXPECTED_SIZE = 211610
 
 
 def repo_root():
+    """Directory containing this file."""
     return os.path.dirname(os.path.abspath(__file__))
 
 
 def output_dir():
-    wanted = os.environ.get("MAKEFUN_OUTPUT_DIR") or ""
-    if wanted:
+    """Grader output directory.
+
+    Uses $MAKEFUN_OUTPUT_DIR when it is set and writable, probed by
+    creating and then removing a ".write-test" file inside it;
+    otherwise falls back to <repo>/output, creating it if needed.
+    """
+    candidate = os.environ.get("MAKEFUN_OUTPUT_DIR")
+    if candidate:
+        probe = os.path.join(candidate, ".write-test")
         try:
-            os.makedirs(wanted, exist_ok=True)
-            probe = os.path.join(wanted, ".write-test")
-            with open(probe, "wb") as handle:
-                handle.write(b"ok")
+            with open(probe, "w") as handle:
+                handle.write("ok")
             os.remove(probe)
-            return wanted
+            return candidate
         except OSError:
             pass
     fallback = os.path.join(repo_root(), "output")
@@ -45,23 +52,27 @@ def output_dir():
 
 
 def main():
-    src = os.path.join(repo_root(), IMAGE_NAME)
-    if not os.path.isfile(src):
-        print("missing source image: %s" % src, file=sys.stderr)
+    """Copy entry.png to the output directory and verify the copy."""
+    source = os.path.join(repo_root(), IMAGE_NAME)
+    if not os.path.isfile(source):
+        print("error: %s not found" % source, file=sys.stderr)
         return 1
-    out_dir = output_dir()
-    dst = os.path.join(out_dir, IMAGE_NAME)
-    shutil.copyfile(src, dst)
-    with open(dst, "rb") as handle:
+    destination = os.path.join(output_dir(), IMAGE_NAME)
+    shutil.copyfile(source, destination)
+    with open(destination, "rb") as handle:
         data = handle.read()
     if not data.startswith(PNG_MAGIC):
-        print("entry.png is not a PNG", file=sys.stderr)
+        print("error: %s is not a PNG file" % destination, file=sys.stderr)
+        return 1
+    if len(data) != EXPECTED_SIZE:
+        print("error: %s is %d bytes, expected %d"
+              % (destination, len(data), EXPECTED_SIZE), file=sys.stderr)
         return 1
     digest = hashlib.sha256(data).hexdigest()
     if digest != EXPECTED_SHA256:
-        print("entry.png sha256 mismatch: %s" % digest, file=sys.stderr)
+        print("error: sha256 mismatch for %s" % destination, file=sys.stderr)
         return 1
-    print("wrote %s (%d bytes, sha256 %s)" % (dst, len(data), digest))
+    print("wrote %s (%d bytes, sha256 %s)" % (destination, len(data), digest))
     return 0
 
 
