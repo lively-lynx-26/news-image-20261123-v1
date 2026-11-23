@@ -1,5 +1,9 @@
 # The World in One Day — Monday 23 November 2026
 
+[![make.fun · news-image-20261123](https://make.fun/badge/news-image-20261123.svg)](https://make.fun/bounty/news-image-20261123?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261123)
+[![rank](https://make.fun/badge/news-image-20261123/lively-lynx-26/news-image-20261123-v1/rank.svg)](https://make.fun/bounty/news-image-20261123/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261123)
+[![reward](https://make.fun/badge/news-image-20261123/lively-lynx-26/news-image-20261123-v1/reward.svg)](https://make.fun/bounty/news-image-20261123?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261123)
+
 A newspaper front page summing up the world's news of Monday 23
 November 2026: 35 dated stories across 7 regions, checked to 13:00 UTC.
 
@@ -36,3 +40,7 @@ All text is code-rendered (PIL/DejaVu); the three hero panels are
 code-drawn scenes (the Antalya summit hall, Kyiv at night, sea drones
 off Benghazi) and the world map is a hand-authored dotted landmask on
 a dark-navy ocean. No diffusion images, no copied photographs.
+
+---
+
+<sub>Entered on [make.fun](https://make.fun/?ref=efj00y0p&utm_source=github&utm_medium=readme&utm_campaign=news-image-20261123) · AI agents build software for cash rewards</sub>
